@@ -1,0 +1,237 @@
+---
+modules:
+  - docassemble.base.util
+  - docassemble.base.legal
+---
+include:
+  - docassemble.MAVirtualCourt:basic-questions.yml
+---
+comment: |
+  ## Mandatory block that determines interview order
+mandatory: True
+code: |
+  intro_screen_seen
+  users[0].name.first
+  users.there_is_another = False
+  users[0].address.address
+  users[0].mobile_number
+  user_ask_role = defendant
+  other_parties
+  case_number
+  signature_fields = []
+  for user_index in range( len(users) ):
+    one_user = 'users[' + str( user_index ) + '].signature' 
+    signature_fields.append( one_user ) 
+  basic_questions_signature_flow
+  court_name
+  court_department
+  small_claims
+---
+metadata:
+  title: |
+    Motion to Vacate Default for Lack of Notice
+  tags: |
+    - Consumer
+  description: |
+    An interview to create a document to ask the Court for a new hearing date
+    if you didn't know about your first hearing date.
+  authors: |
+    - Originally the work of Matt Brooks, this version was edited by Michael Cronin for the Suffolk LIT Lab.
+---
+objects: 
+  defendant: Individual
+---
+id: intro screen
+question: |
+  Motion to Vacate Default for Lack of Notice
+subquestion: |
+  This is an interview that will help you write a Motion to Vacate Default
+  for Lack of Notice. 
+    
+  You should use this interview if a judgment entered against you, and you did
+  not know about the court hearing where the judgment entered.
+  
+  Using this interview, you can ask the court to vacate the default judgment and
+  reschedule the trial. 
+field: intro_screen_seen
+---
+#question: |
+#  What is your name?
+#fields:
+#  - First Name: client.name.first
+#  - Last Name: client.name.last
+---
+#question: |
+#  What is your address?
+#fields:
+#  - Street Address: client.address.address
+#  - City: client.address.city
+#    default: Boston
+#  - State: client.address.state
+#    default: MA
+#  - Zip Code: client.address.zip
+---
+#question: |
+#  What is your phone number?
+#fields:
+#  - Phone Number: client.phone_number
+---
+id: other party info
+question: |
+  Please provide the information of the party on the other side of this case.
+fields:
+ - Name of the Business or Organization: other_parties
+---
+id: docket number
+question: |
+  What is your docket number?
+subquestion: |
+  The docket number can be found on top and middle of the notice you received from the court. 
+  
+  [FILE consumer_default_docket_example.png, 100%]
+fields:
+  - Docket Number: case_number
+---
+#question: |
+#    What is the name of the opposing party (the person who is suing you)?
+#fields:
+#    - Opposing Party Name: opposing_party.name.text
+---
+code: |
+  ma_court_list_by_code = { '01': 'Boston Municipal Central', 
+  '02':   'Roxbury Municipal', 
+  '03':   'South Boston Municipal', 
+  '04':  'Charlestown Municipal', 
+  '05':   'East Boston Municipal',
+  '06':  'West Roxbury Municipal',
+  '07':  'Dorchester Municipal',
+  '08':  'Brighton Municipal',
+  '09':  'Brookline District Court',
+  '10':  'Somerville District Court',
+  '11':  'Lowell District Court',
+  '12':  'Newton District Court',
+  '13':  'Lynn District Court',
+  '14':  'Chelsea District Court',
+  '15':  'Brockton District Court',
+  '16':  'Fitchburg District Court',
+  '17':  'Holyoke District Court',
+  '18':  'Lawrence District Court',
+  '20':  'Chicopee District Court',
+  '21':  'Marlboro District Court',
+  '22':  'Newburyport District Court',
+  '23':  'Springfield District Court',
+  '25':  'Barnstable District Court',
+  '26':  'Orleans District Court',
+  '27':  'Pittsfield District Court',
+  '28':  'Northern Berkshire District Court',
+  '29':  'Southern Berkshire District Court',
+  '31':  'Taunton District Court',
+  '32':  'Fall River District Court',
+  '33':  'New Bedford District Court',
+  '34':  'Attleboro District Court',
+  '35':  'Edgartown District Court',
+  '36':  'Salem District Court',
+  '38':  'Haverhill District Court',
+  '39':  'Gloucester District',
+  '40':  'Ipswich District Court',
+  '41':  'Greenfield District Court',
+  '42':  'Orange District Court',
+  '43':  'Palmer District Court',
+  '44':  'Westfield District Court',
+  '45':  'Northampton District Court',
+  '47':  'Concord District Court',
+  '48':  'Ayer District Court',
+  '49':  'Framingham District Court',
+  '50':  'Malden District Court',
+  '51':  'Waltham District Court',
+  '52':  'Cambridge District Court',
+  '53':  'Woburn District Court',
+  '54':  'Dedham District Court',
+  '55':  'Stoughton District Court',
+  '56':  'Quincy District Court',
+  '57':  'Wrentham District Court',
+  '58':  'Hingham District Court',
+  '59':  'Plymouth District Court',
+  '60':  'Wareham District Court',
+  '61':  'Leominster District Court',
+  '62':  'Worcester District Court',
+  '63':  'Gardner District Court',
+  '64':  'Dudley District Court',
+  '65':  'Uxbridge District Court',
+  '66':  'Milford District Court',
+  '67':  'Westborough District Court',
+  '68':  'Clinton District Court',
+  '69':  'East Brookfield District Court',
+  '70':  'Winchendon District Court',
+  '71':  'Suffolk Juvenile',
+  '72':  'Barnstable Superior Court',
+  '73':  'Bristol Superior Court',
+  '74':  'Dukes Superior Court',
+  '75':  'Nantucket Superior Court',
+  '76':  'Berkshire Superior Court',
+  '77':  'Essex Superior Court',
+  '78':  'Franklin Superior Court',
+  '79':  'Hampden Superior Court',
+  '80':  'Hampshire Superior Court',
+  '81':  'Middlesex Superior Court',
+  '82':  'Norfolk Superior Court',
+  '83':  'Plymouth Superior Court',
+  '84':  'Suffolk Superior Court',
+  '85':  'Worcester Superior Court',
+  '86':  'Peabody District Court',
+  '87':  'Natick District Court',
+  '88':  'Nantucket District Court',
+  '89':  'Falmouth District Court',
+  '98':  'Eastern Hampshire District Court'}
+  
+  try:
+    court_code = case_number[2] + case_number[3]
+  except:
+    court_code = '99'
+	try:
+    court_name = ma_court_list_by_code[court_code]
+  except:
+    court_name = 'Unknown Court'
+    
+  if court_code in ['01', '02', '03', '04', '05', '06', '07', '08']:
+    court_department = 'Municipal Court'
+  elif court_code in ['72', '73', '74', '75', '76', '77', '78', '79', '80',
+    '81', '82', '83', '84', '85']:
+    court_department = 'Superior Court'
+  else:
+    court_department = 'District Court'
+        
+  if case_number[4] + case_number[5] in ['sc', 'SC', 'Sc', 'sC']:
+    small_claims = True
+  else:
+    small_claims = False
+---
+code: |
+  user.signature
+---
+#question:
+#  ${ users.name.firstlast() }
+#signature: client_signature
+#under: |
+#  Sign your name here by using your mouse or touching your phone's screen.
+#  Press clear if you want to start over.
+---
+id: download screen
+mandatory: True
+question: |
+  Here is your motion:
+subquestion: |
+  ${ consumer_default_variable }
+  
+#  ${ certificate_of_service_variable }
+
+buttons: 
+    - Exit: exit
+    - Restart: restart
+---
+attachment:
+  - name: Motion to Vacate Consumer Default
+    variable name: consumer_default_variable
+    filename: consumer_default_file
+    docx template file: consumer_default_template.docx
+  
