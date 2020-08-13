@@ -12,5 +12,6 @@ Lily Yang
 Matthew Brooks
 Lance Godard
 Maeve MacGlinchey
+Michael Cronin
 Kendall Garner
 David Colarusso
