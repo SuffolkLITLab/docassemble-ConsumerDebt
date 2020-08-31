@@ -1,7 +1,7 @@
 ---
-modules:
-  - docassemble.base.util
-  - docassemble.base.legal
+# modules:
+  # - docassemble.base.util
+  # - docassemble.base.legal
 ---
 include:
   - docassemble.MAVirtualCourt:basic-questions.yml
@@ -10,14 +10,20 @@ comment: |
   ## Mandatory block that determines interview order
 mandatory: True
 code: |
-  intro_screen_seen
+  form_name = 'Ask the court to "vacate" the default judgment in your case'
+  basic_questions_intro_screen
+  intro_yesno
+  if intro_yesno == False:
+    find_judgment
+  reason_for_missing
+  judgment_entry_date
+  case_number
   users[0].name.first
   users.there_is_another = False
   users[0].address.address
   users[0].mobile_number
   user_ask_role = defendant
   other_parties
-  case_number
   signature_fields = []
   for user_index in range( len(users) ):
     one_user = 'users[' + str( user_index ) + '].signature' 
@@ -29,7 +35,7 @@ code: |
 ---
 metadata:
   title: |
-    Motion to Vacate Default for Lack of Notice
+    Motion to Vacate Default Judgment
   tags: |
     - Consumer
   description: |
@@ -41,19 +47,86 @@ metadata:
 objects: 
   defendant: Individual
 ---
+id: basic questions intro screen
+question: |
+  ${form_name}: Mass Access Project
+subquestion: |
+ 
+  This website can help you complete and file your court forms in 3 steps:
+  
+  Step 1. Answer questions that will fill in your forms for you.  
+  Step 2. Preview the completed forms.  
+  Step 3. Email the forms to the court using this secure website and save copies
+  for yourself for later reference.  
+  Tap the {green words} in any screen for a definition or more information.
+  
+  If you have questions about this form or the court process, 
+  call the Trial Court’s Emergency HelpLine:  
+  833-91-COURT (833-912-6878)  
+  Monday-Friday  
+  8:30am - 4:30pm
+  % if chat_partners_available().help:
+  Live help is currently available in this interview. Click the speech bubble
+  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
+  % endif
+fields:
+  - To continue, please read the [terms of use](https://massaccess.suffolklitlab.org/privacy/): acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You can only continue if you agree to the terms of use.        
+continue button field: basic_questions_intro_screen
+terms:
+  green words: |
+    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
+right: |
+  % if user_has_saved_answers:
+  ${fa_icon("bell", color="primary", size="sm")}
+  Saved answers available!  
+  
+  ${action_button_html(url_action('load_answer'), icon="folder-open", label=word("View answers"), size="sm" )}
+  % endif    
+---
 id: intro screen
 question: |
-  Motion to Vacate Default for Lack of Notice
+  Motion to Vacate Default Judgment
 subquestion: |
-  This is an interview that will help you write a Motion to Vacate Default
-  for Lack of Notice. 
-    
-  You should use this interview if a judgment entered against you, and you did
-  not know about the court hearing where the judgment entered.
+  If you do not show up for your trial when you were supposed to, you lose your case by default. And you get a default judgment:  
   
-  Using this interview, you can ask the court to vacate the default judgment and
-  reschedule the trial. 
-field: intro_screen_seen
+  * The creditor wins the case by default because you did not appear at court.
+  * And the judge decides you owe the creditor the money the creditor claims you owe them. 
+  
+  Use a **Motion to Vacate Default Judgment** if:
+  * You missed the trial because you did not know about it (Lack of Notice), or 
+  * You missed it due to the COVD-19 pandemic
+  And 
+  * You need another chance to {answer} the creditor's complaint. When you {answer} the complaint you can explain why you should not have to pay them the money they say you owe.
+    
+    Note: You can only file this motion if you have your case number. 
+    
+    Do you have the Judgment by Default paperwork from the court?
+    
+yesno: intro_yesno
+terms:
+  answer: |
+    Your Answer
+    An Answer is your written statement that tells your side of the story. Your Answer explains:
+    * what is wrong in the complaint and why, and
+    * things the plaintiff did that hurt you/were wrong.
+    These explanations in your answer are called "defenses and counterclaims." You might include in your Answer:
+    * Why you do not owe the money the plaintiff claims,
+    * Why you do not owe as much money as the plaintiff claims, 
+    * The laws the plaintiff broke.
+---
+event: find_judgment
+question: |
+  If you do not have your default judgment then you cannot use this interview.
+subquestion: |
+  For information on how to get a copy of your default judgment, please use this link.
 ---
 #question: |
 #  What is your name?
@@ -76,19 +149,42 @@ field: intro_screen_seen
 #fields:
 #  - Phone Number: client.phone_number
 ---
+id: reason for missing
+question: |
+  What is the reason you missed your original court date?
+field: reason_for_missing
+choices:
+  - I was unaware of the original court date: Lack of Notice
+  - Issues related to the COVID-19 pandemic: COVID-19
+---
+id: default judgement date
+question: |
+  What is the date that the default judgment enter?
+fields:
+  - Judgment Entry Date: judgment_entry_date
+    datatype: date
+---
 id: other party info
 question: |
-  Please provide the information of the party on the other side of this case.
+  What is the plaintiff's name?
+subquestion: |
+  Look for the word 'Plaintiff' or 'Plaintiffs' in the papers you got from the court.
+  
+  [FILE default-judgment-plaintiff.png, 100%] 
 fields:
- - Name of the Business or Organization: other_parties
+ - PLAINTIFF(S) WHO ARE PARTIES TO THIS JUDGMENT: other_parties
+ # all caps is being used here to match the format of the information they are looking for on the document
 ---
 id: docket number
 question: |
   What is your docket number?
 subquestion: |
-  The docket number can be found on top and middle of the notice you received from the court. 
+  You can find the docket number at the top of the Default Judgment. 
   
-  [FILE consumer_default_docket_example.png, 100%]
+  [FILE default-judgment-docket.png, 100%]
+  
+  It is usually close to the top of any other papers the court sent you. 
+  
 fields:
   - Docket Number: case_number
 ---
@@ -224,7 +320,6 @@ subquestion: |
   ${ consumer_default_variable }
   
 #  ${ certificate_of_service_variable }
-
 buttons: 
     - Exit: exit
     - Restart: restart
@@ -234,4 +329,3 @@ attachment:
     variable name: consumer_default_variable
     filename: consumer_default_file
     docx template file: consumer_default_template.docx
-  
