@@ -1,4 +1,13 @@
 ---
+mandatory: True
+code: |
+  interview_metadata # make sure we initialize the object
+  if not defined("interview_metadata['consumer_default']"):
+    interview_metadata.initializeObject('consumer_default')
+  interview_metadata['consumer_default'].update({
+    'attachment block variable': 'consumer_default_attachment',
+  })
+---
 # modules:
   # - docassemble.base.util
   # - docassemble.base.legal
@@ -12,7 +21,12 @@ mandatory: True
 code: |
   form_name = 'Ask the court to "vacate" the default judgment in your case'
   basic_questions_intro_screen
-  intro_screen_seen
+  intro_yesno
+  if intro_yesno == False:
+    find_judgment
+  reason_for_missing
+  judgment_entry_date
+
   case_number
   users[0].name.first
   users.there_is_another = False
@@ -20,6 +34,8 @@ code: |
   users[0].mobile_number
   user_ask_role = defendant
   other_parties
+  form_to_sign = consumer_default_attachment
+  preview_screen
   signature_fields = []
   for user_index in range( len(users) ):
     one_user = 'users[' + str( user_index ) + '].signature' 
@@ -28,10 +44,11 @@ code: |
   court_name
   court_department
   small_claims
+  download
 ---
 metadata:
   title: |
-    Motion to Vacate Default for Lack of Notice
+    Motion to Vacate Default Judgment
   tags: |
     - Consumer
   description: |
@@ -89,24 +106,25 @@ right: |
 ---
 id: intro screen
 question: |
-  Motion to Vacate Default for Lack of Notice
+  Motion to Vacate Default Judgment
 subquestion: |
-  If you do not show up for your trial when you were supposed to, you lose your case by default. And you get a default judgment:  
+  If you do not show up for your trial when you were supposed to, you lose your case by default, and:  
   
   * The creditor wins the case by default because you did not appear at court.
-  * And the judge decides you owe the creditor the money the creditor claims you owe them. 
+  * The judge decides you owe the creditor the money the creditor claims you owe them. 
   
-  Use a **Motion to Vacate Default Judgment for Lack of Notice** if:
+  Use a **Motion to Vacate Default Judgment** if:
+  
+  * You missed the trial because you did not know about it (Lack of Notice), OR
+  * You missed it due to the COVD-19 pandemic, AND
+  * You need another chance to {answer} the creditor's complaint. When you answer the complaint you can explain why you should not have to pay them the money they say you owe.
+    
+    *You can only file this motion if you have your docket number.*
+    
+    **Do you have the Judgment by Default paperwork from the court?**
+    
+yesno: intro_yesno
 
-  * you missed the trial because you did not know about it, and 
-  * you need another chance to {answer} the creditor's complaint. When you {answer} the complaint you can explain why you should not have to pay them the money they say you owe.
-    
-    Note: You can only file this motion if you have your case number. 
-    
-    Do you have the Judgment by Default paperwork from the court?
-    
- 
-field: intro_screen_seen
 terms:
   answer: |
     Your Answer
@@ -115,10 +133,16 @@ terms:
     * what is wrong in the complaint and why, and
     * things the plaintiff did that hurt you/were wrong.
     These explanations in your answer are called "defenses and counterclaims." You might include in your Answer:
-
     * Why you do not owe the money the plaintiff claims,
     * Why you do not owe as much money as the plaintiff claims, 
     * The laws the plaintiff broke.
+---
+id: kickout screen no paperwork
+event: find_judgment
+question: |
+  If you do not have your default judgment then you cannot use this interview.
+subquestion: |
+  For information on how to get a copy of your default judgment, please use this link.
 ---
 #question: |
 #  What is your name?
@@ -141,6 +165,21 @@ terms:
 #fields:
 #  - Phone Number: client.phone_number
 ---
+id: reason for missing
+question: |
+  What is the reason you missed your original court date?
+field: reason_for_missing
+choices:
+  - I was unaware of the original court date: Lack of Notice
+  - Issues related to the COVID-19 pandemic: COVID-19
+---
+id: default judgment date
+question: |
+  On what date was the default judgment entered?
+fields:
+  - Date: judgment_entry_date
+    datatype: date
+---
 id: other party info
 question: |
   What is the plaintiff's name?
@@ -150,6 +189,8 @@ subquestion: |
   [FILE default-judgment-plaintiff.png, 100%] 
 fields:
  - PLAINTIFF(S) WHO ARE PARTIES TO THIS JUDGMENT: other_parties
+
+ # all caps is being used here to match the format of the information they are looking for on the document
 ---
 id: docket number
 question: |
@@ -162,7 +203,7 @@ subquestion: |
   It is usually close to the top of any other papers the court sent you. 
   
 fields:
-  - Docket Number: case_number
+  - Docket number: case_number
 ---
 #question: |
 #    What is the name of the opposing party (the person who is suing you)?
@@ -277,6 +318,8 @@ code: |
     small_claims = True
   else:
     small_claims = False
+    
+  courts[0] = macourts.get_court_by_code( court_code )
 ---
 code: |
   user.signature
@@ -288,20 +331,66 @@ code: |
 #  Sign your name here by using your mouse or touching your phone's screen.
 #  Press clear if you want to start over.
 ---
-id: download screen
-mandatory: True
+id: review before signature
+need: form_to_sign
+continue button field: preview_screen
 question: |
-  Here is your motion:
+  Nearly finished
 subquestion: |
-  ${ consumer_default_variable }
+  You are almost done! Please click on the form below. It will open in a new window so you can review it and make sure it is correct.
   
-#  ${ certificate_of_service_variable }
-buttons: 
-    - Exit: exit
-    - Restart: restart
+  Don't forget to come back to this page to click to the final step of signing and sending the form to the court. 
+  
+   ${ form_to_sign }
+
+progress: 95
+---
+id: download form
+event: download
+decoration: file-download
+question: |
+  % if not defined('email_success') or not email_success:
+  Review, download, and send form
+  % else:
+  Form delivered
+  % endif
+subquestion: |
+  % if not defined('email_success') or not email_success:
+  Thank you ${users[0]}. Your form is ready to send to the court. 
+  
+  **It is not delivered until you complete the delivery process below.**
+
+  1. Click the preview image below to open the form in a new window.
+  2. Download and save or print a copy of this form for your 
+  records.
+  3. Click the "Submit to ${courts[0]}" button to send it to the court. 
+  4. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
+  % else:
+  If you do not hear from the court in 1 business day, call the Trial Court’s Emergency HelpLine 833-91-COURT (833-912-6878).
+  
+  The Emergency HelpLine is open:  
+  8:30am - 4:30pm,   
+  Monday - Friday.
+  % endif
+  
+  ${ form_to_file_no_cover }  
+  
+  % if not defined('email_success') or not email_success:
+    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
+    
+  Or download/email below:
+  % else:
+    Your email has already been delivered to ${courts[0]}
+    
+  [:file-download: Download with cover page](${final_form_to_file.url_for()})    
+  % endif
+progress: 100
+attachment code: consumer_default_attachment
+section: download
 ---
 attachment:
   - name: Motion to Vacate Consumer Default
-    variable name: consumer_default_variable
-    filename: consumer_default_file
+    variable name: consumer_default_attachment
+    filename: consumer_default
+
     docx template file: consumer_default_template.docx
