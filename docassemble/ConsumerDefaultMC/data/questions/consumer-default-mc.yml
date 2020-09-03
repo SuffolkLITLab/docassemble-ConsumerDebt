@@ -26,6 +26,7 @@ code: |
     find_judgment
   reason_for_missing
   judgment_entry_date
+
   case_number
   users[0].name.first
   users.there_is_another = False
@@ -123,10 +124,12 @@ subquestion: |
     **Do you have the Judgment by Default paperwork from the court?**
     
 yesno: intro_yesno
+
 terms:
   answer: |
     Your Answer
     An Answer is your written statement that tells your side of the story. Your Answer explains:
+
     * what is wrong in the complaint and why, and
     * things the plaintiff did that hurt you/were wrong.
     These explanations in your answer are called "defenses and counterclaims." You might include in your Answer:
@@ -186,6 +189,7 @@ subquestion: |
   [FILE default-judgment-plaintiff.png, 100%] 
 fields:
  - PLAINTIFF(S) WHO ARE PARTIES TO THIS JUDGMENT: other_parties
+
  # all caps is being used here to match the format of the information they are looking for on the document
 ---
 id: docket number
@@ -388,4 +392,5 @@ attachment:
   - name: Motion to Vacate Consumer Default
     variable name: consumer_default_attachment
     filename: consumer_default
+
     docx template file: consumer_default_template.docx
