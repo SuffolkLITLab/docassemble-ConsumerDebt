@@ -1,4 +1,13 @@
 ---
+mandatory: True
+code: |
+  interview_metadata # make sure we initialize the object
+  if not defined("interview_metadata['consumer_default']"):
+    interview_metadata.initializeObject('consumer_default')
+  interview_metadata['consumer_default'].update({
+    'attachment block variable': 'consumer_default_attachment',
+  })
+---
 # modules:
   # - docassemble.base.util
   # - docassemble.base.legal
@@ -24,6 +33,8 @@ code: |
   users[0].mobile_number
   user_ask_role = defendant
   other_parties
+  form_to_sign = consumer_default_attachment
+  preview_screen
   signature_fields = []
   for user_index in range( len(users) ):
     one_user = 'users[' + str( user_index ) + '].signature' 
@@ -32,6 +43,7 @@ code: |
   court_name
   court_department
   small_claims
+  download
 ---
 metadata:
   title: |
@@ -302,6 +314,8 @@ code: |
     small_claims = True
   else:
     small_claims = False
+    
+  courts[0] = macourts.get_court_by_code( court_code )
 ---
 code: |
   user.signature
@@ -313,20 +327,65 @@ code: |
 #  Sign your name here by using your mouse or touching your phone's screen.
 #  Press clear if you want to start over.
 ---
-id: download screen
-mandatory: True
+id: review before signature
+need: form_to_sign
+continue button field: preview_screen
 question: |
-  Here is your motion:
+  Nearly finished
 subquestion: |
-  ${ consumer_default_variable }
+  You are almost done! Please click on the form below. It will open in a new window so you can review it and make sure it is correct.
   
-#  ${ certificate_of_service_variable }
-buttons: 
-    - Exit: exit
-    - Restart: restart
+  Don't forget to come back to this page to click to the final step of signing and sending the form to the court. 
+  
+   ${ form_to_sign }
+
+progress: 95
+---
+id: download form
+event: download
+decoration: file-download
+question: |
+  % if not defined('email_success') or not email_success:
+  Review, download, and send form
+  % else:
+  Form delivered
+  % endif
+subquestion: |
+  % if not defined('email_success') or not email_success:
+  Thank you ${users[0]}. Your form is ready to send to the court. 
+  
+  **It is not delivered until you complete the delivery process below.**
+
+  1. Click the preview image below to open the form in a new window.
+  2. Download and save or print a copy of this form for your 
+  records.
+  3. Click the "Submit to ${courts[0]}" button to send it to the court. 
+  4. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
+  % else:
+  If you do not hear from the court in 1 business day, call the Trial Court’s Emergency HelpLine 833-91-COURT (833-912-6878).
+  
+  The Emergency HelpLine is open:  
+  8:30am - 4:30pm,   
+  Monday - Friday.
+  % endif
+  
+  ${ form_to_file_no_cover }  
+  
+  % if not defined('email_success') or not email_success:
+    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
+    
+  Or download/email below:
+  % else:
+    Your email has already been delivered to ${courts[0]}
+    
+  [:file-download: Download with cover page](${final_form_to_file.url_for()})    
+  % endif
+progress: 100
+attachment code: consumer_default_attachment
+section: download
 ---
 attachment:
   - name: Motion to Vacate Consumer Default
-    variable name: consumer_default_variable
-    filename: consumer_default_file
+    variable name: consumer_default_attachment
+    filename: consumer_default
     docx template file: consumer_default_template.docx
