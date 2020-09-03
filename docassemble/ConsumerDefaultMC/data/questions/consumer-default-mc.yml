@@ -314,6 +314,8 @@ code: |
     small_claims = True
   else:
     small_claims = False
+    
+  courts[0] = macourts.get_court_by_code( court_code )
 ---
 code: |
   user.signature
