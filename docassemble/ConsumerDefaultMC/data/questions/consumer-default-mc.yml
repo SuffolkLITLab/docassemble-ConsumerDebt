@@ -15,6 +15,9 @@ code: |
 include:
   - docassemble.MAVirtualCourt:basic-questions.yml
 ---
+code: |
+  download_titles = ["Motion to Vacate Default"]
+---
 comment: |
   ## Mandatory block that determines interview order
 mandatory: True
