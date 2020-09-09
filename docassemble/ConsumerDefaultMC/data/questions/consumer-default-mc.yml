@@ -2,10 +2,10 @@
 mandatory: True
 code: |
   interview_metadata # make sure we initialize the object
-  if not defined("interview_metadata['consumer_default']"):
-    interview_metadata.initializeObject('consumer_default')
-  interview_metadata['consumer_default'].update({
-    'attachment block variable': 'consumer_default_attachment',
+  if not defined("interview_metadata['consumer_debt_default_motion']"):
+    interview_metadata.initializeObject('consumer_debt_default_motion')
+  interview_metadata['consumer_debt_default_motion'].update({
+    'attachment block variable': 'consumer_debt_attachment',
   })
 ---
 # modules:
@@ -27,16 +27,16 @@ code: |
   if intro_yesno == False:
     find_judgment
   reason_for_missing
-  judgment_entry_date
-
-  case_number
+  if reason_for_missing == 'COVID-19':
+    judgment_entry_date
+  docket_number
   users[0].name.first
   users.there_is_another = False
   users[0].address.address
   users[0].mobile_number
   user_ask_role = defendant
   other_parties
-  form_to_sign = consumer_default_attachment
+  form_to_sign = consumer_debt_attachment
   preview_screen
   signature_fields = []
   for user_index in range( len(users) ):
@@ -164,7 +164,11 @@ subquestion: |
   It is usually close to the top of any other papers the court sent you. 
   
 fields:
-  - Docket number: case_number
+  - Docket number: docket_number
+  
+  ## The code for Docket Number is very sensitive and it needs real docket numbers to activate it.
+  #To trigger the small claims use: 1814sc000032 or 1902SC123456 or 2003sC789101
+  #For the rest use: 12032831 and 1282048139
 ---
 #question: |
 #    What is the name of the opposing party (the person who is suing you)?
@@ -259,7 +263,7 @@ code: |
   '98':  'Eastern Hampshire District Court'}
   
   try:
-    court_code = case_number[2] + case_number[3]
+    court_code = docket_number[2] + docket_number[3]
   except:
     court_code = '99'
 	try:
@@ -275,7 +279,7 @@ code: |
   else:
     court_department = 'District Court'
         
-  if case_number[4] + case_number[5] in ['sc', 'SC', 'Sc', 'sC']:
+  if docket_number[4] + docket_number[5] in ['sc', 'SC', 'Sc', 'sC']:
     small_claims = True
   else:
     small_claims = False
@@ -346,12 +350,11 @@ subquestion: |
   [:file-download: Download with cover page](${final_form_to_file.url_for()})    
   % endif
 progress: 100
-attachment code: consumer_default_attachment
+attachment code: consumer_debt_attachment
 section: download
 ---
 attachment:
   - name: Motion to Vacate Consumer Default
-    variable name: consumer_default_attachment
-    filename: consumer_default
-
-    docx template file: consumer_default_template.docx
+    variable name: consumer_debt_attachment
+    filename: consumer_debt_default_motion
+    docx template file: consumer_debt_default_motion.docx
