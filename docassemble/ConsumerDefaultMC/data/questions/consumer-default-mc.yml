@@ -30,6 +30,7 @@ code: |
   if reason_for_missing == 'COVID-19':
     judgment_entry_date
   docket_number
+  user_needs_interpreter
   users[0].name.first
   users.there_is_another = False
   users[0].address.address
