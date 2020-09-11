@@ -36,7 +36,7 @@ code: |
   users[0].mobile_number
   user_ask_role = defendant
   other_parties
-  form_to_sign = consumer_debt_attachment
+  form_to_sign
   preview_screen
   signature_fields = []
   for user_index in range( len(users) ):
@@ -309,6 +309,13 @@ subquestion: |
    ${ form_to_sign }
 
 progress: 95
+---
+code: |
+ form_to_sign = pdf_concatenate(preview_doc)
+---
+attachment:
+  docx template file: consumer_debt_default_motion.docx
+  variable name: preview_doc
 ---
 id: download form
 event: download
