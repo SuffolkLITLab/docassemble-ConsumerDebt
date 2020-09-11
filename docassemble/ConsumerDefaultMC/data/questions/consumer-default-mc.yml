@@ -313,6 +313,8 @@ progress: 95
 ---
 id: download form
 event: download
+reconsider:
+  - consumer_debt_attachment
 decoration: file-download
 question: |
   % if not defined('email_success') or not email_success:
