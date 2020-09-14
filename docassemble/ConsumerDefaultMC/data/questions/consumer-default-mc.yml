@@ -148,7 +148,7 @@ question: |
 subquestion: |
   Look for the word 'Plaintiff' or 'Plaintiffs' in the papers you got from the court.
   
-  [FILE default-judgment-plaintiff.png, 100%] 
+  [[FILE default-judgment-plaintiff.png, 100%]](https://apps-dev.suffolklitlab.org/playgroundstatic/MBConsumerDefault/37/default-judgment-plaintiff.png)
 fields:
  - PLAINTIFF(S) WHO ARE PARTIES TO THIS JUDGMENT: other_parties
 
@@ -160,7 +160,7 @@ question: |
 subquestion: |
   You can find the docket number at the top of the Default Judgment. 
   
-  [FILE default-judgment-docket.png, 100%]
+  [[FILE default-judgment-docket.png, 100%]](https://apps-dev.suffolklitlab.org/playgroundstatic/MBConsumerDefault/37/default-judgment-docket.png)
   
   It is usually close to the top of any other papers the court sent you. 
   
