@@ -25,11 +25,15 @@ code: |
   basic_questions_intro_screen
   intro_yesno
   if intro_yesno == False:
-    find_judgment
+    find_docket_number
   reason_for_missing
   if reason_for_missing == 'COVID-19':
     judgment_entry_date
   docket_number
+  court_name
+  court_department
+  small_claims
+  courts[0].name
   user_needs_interpreter
   users[0].name.first
   users.there_is_another = False
@@ -44,9 +48,6 @@ code: |
     one_user = 'users[' + str( user_index ) + '].signature' 
     signature_fields.append( one_user ) 
   basic_questions_signature_flow
-  court_name
-  court_department
-  small_claims
   download
 ---
 metadata:
@@ -77,13 +78,13 @@ subquestion: |
   
   Use a **Motion to Vacate Default Judgment** if:
   
-  * You missed the trial because you did not know about it (Lack of Notice), OR
-  * You missed it due to the COVD-19 pandemic, AND
+  * You missed the trial because you did not know about it (Lack of Notice), **or**
+  * You missed it due to the COVD-19 pandemic, **and**
   * You need another chance to {answer} the creditor's complaint. When you answer the complaint you can explain why you should not have to pay them the money they say you owe.
     
-    *You can only file this motion if you have your docket number.*
+    You can only file this motion if you have your docket number.
     
-    **Do you have the Judgment by Default paperwork from the court?**
+    **Do you have a docket number?**
     
 yesno: intro_yesno
 
@@ -99,12 +100,12 @@ terms:
     * Why you do not owe as much money as the plaintiff claims, 
     * The laws the plaintiff broke.
 ---
-id: kickout screen no paperwork
-event: find_judgment
+id: kickout screen no docket number
+event: find_docket_number
 question: |
-  If you do not have your default judgment then you cannot use this interview.
+  If you do not have your docket number, you cannot use this form.
 subquestion: |
-  For information on how to get a copy of your default judgment, please use this link.
+  To get your docket number, call Greater Boston Legal Services at 617-603-1671. 
 ---
 #question: |
 #  What is your name?
