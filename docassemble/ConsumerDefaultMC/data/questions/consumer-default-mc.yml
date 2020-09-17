@@ -103,9 +103,9 @@ terms:
 id: kickout screen no docket number
 event: find_docket_number
 question: |
-  If you do not have your docket number, you cannot use this form.
+  You need a docket number to file this motion.
 subquestion: |
-  To get your docket number, call Greater Boston Legal Services at 617-603-1671. 
+  **If you do not have a docket number or you cannot find one,** you can call Greater Boston Legal Services Consumer Intake Line: 617-603-1671. Leave a message and someone will call you back with help.
 ---
 #question: |
 #  What is your name?
