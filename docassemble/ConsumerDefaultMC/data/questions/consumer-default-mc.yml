@@ -8,10 +8,6 @@ code: |
     'attachment block variable': 'consumer_debt_attachment',
   })
 ---
-# modules:
-  # - docassemble.base.util
-  # - docassemble.base.legal
----
 include:
   - docassemble.MAVirtualCourt:basic-questions.yml
 ---
@@ -106,27 +102,6 @@ question: |
 subquestion: |
   For information on how to get a copy of your default judgment, please use this link.
 ---
-#question: |
-#  What is your name?
-#fields:
-#  - First Name: client.name.first
-#  - Last Name: client.name.last
----
-#question: |
-#  What is your address?
-#fields:
-#  - Street Address: client.address.address
-#  - City: client.address.city
-#    default: Boston
-#  - State: client.address.state
-#    default: MA
-#  - Zip Code: client.address.zip
----
-#question: |
-#  What is your phone number?
-#fields:
-#  - Phone Number: client.phone_number
----
 id: reason for missing
 question: |
   What is the reason you missed your original court date?
@@ -146,11 +121,12 @@ id: other party info
 question: |
   What is the plaintiff's name?
 subquestion: |
-  Look for the word 'Plaintiff' or 'Plaintiffs' in the papers you got from the court.
+  Look for the word 'Plaintiff' or 'Plaintiffs' in the papers you got from the court. The plaintiff may also be referred to as a 'creditor' or 'judgment creditor' on papers. 
   
   [[FILE default-judgment-plaintiff.png, 100%]](https://apps-dev.suffolklitlab.org/playgroundstatic/MBConsumerDefault/37/default-judgment-plaintiff.png)
 fields:
- - PLAINTIFF(S) WHO ARE PARTIES TO THIS JUDGMENT: other_parties
+ - Plaintiff Name: other_parties
+   required: False
 
  # all caps is being used here to match the format of the information they are looking for on the document
 ---
@@ -170,11 +146,6 @@ fields:
   ## The code for Docket Number is very sensitive and it needs real docket numbers to activate it.
   #To trigger the small claims use: 1814sc000032 or 1902SC123456 or 2003sC789101
   #For the rest use: 12032831 and 1282048139
----
-#question: |
-#    What is the name of the opposing party (the person who is suing you)?
-#fields:
-#    - Opposing Party Name: opposing_party.name.text
 ---
 code: |
   ma_court_list_by_code = { '01': 'Boston Municipal Central', 
@@ -289,13 +260,6 @@ code: |
 ---
 code: |
   user.signature
----
-#question:
-#  ${ users.name.firstlast() }
-#signature: client_signature
-#under: |
-#  Sign your name here by using your mouse or touching your phone's screen.
-#  Press clear if you want to start over.
 ---
 id: review before signature
 need: form_to_sign
