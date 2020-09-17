@@ -107,8 +107,8 @@ question: |
   What is the reason you missed your original court date?
 field: reason_for_missing
 choices:
-  - I was unaware of the original court date: Lack of Notice
-  - Issues related to the COVID-19 pandemic: COVID-19
+  - I did not know I had a court date.: Lack of Notice
+  - Issues related to the COVID-19 pandemic.: COVID-19
 ---
 id: default judgment date
 question: |
