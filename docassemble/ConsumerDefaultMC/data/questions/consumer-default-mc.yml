@@ -118,18 +118,21 @@ fields:
   - Date: judgment_entry_date
     datatype: date
 ---
+objects:
+  - default_plaintiff_image: DAStaticFile.using(filename='default-judgment-plaintiff.png', alt_text='Plaintiff Name')
+  - default_docket_number_image: DAStaticFile.using(filename='default-judgment-docket.png', alt_text='Docket Number')
+---
 id: other party info
 question: |
   What is the plaintiff's name?
 subquestion: |
   Look for the word 'Plaintiff' or 'Plaintiffs' in the papers you got from the court. The plaintiff may also be referred to as a 'creditor' or 'judgment creditor' on papers. 
   
-  [[FILE default-judgment-plaintiff.png, 100%]](https://apps-dev.suffolklitlab.org/playgroundstatic/MBConsumerDefault/37/default-judgment-plaintiff.png)
-fields:
- - Plaintiff Name: other_parties
-   required: False
+  [${default_plaintiff_image.show(width='35em')}](${default_plaintiff_image.url_for()})
 
- # all caps is being used here to match the format of the information they are looking for on the document
+fields:
+ - Plaintiff mame: other_parties
+   required: False
 ---
 id: docket number
 question: |
@@ -137,7 +140,7 @@ question: |
 subquestion: |
   You can find the docket number at the top of the Default Judgment. 
   
-  [[FILE default-judgment-docket.png, 100%]](https://apps-dev.suffolklitlab.org/playgroundstatic/MBConsumerDefault/37/default-judgment-docket.png)
+  [${default_docket_number_image.show(width='35em')}](${default_docket_number_image.url_for()})
   
   It is usually close to the top of any other papers the court sent you. 
   
