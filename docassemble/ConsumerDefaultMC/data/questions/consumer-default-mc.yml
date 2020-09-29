@@ -105,11 +105,14 @@ subquestion: |
 ---
 id: reason for missing
 question: |
-  What is the reason you missed your original court date?
-field: reason_for_missing
-choices:
-  - I did not know I had a court date.: Lack of Notice
-  - Issues related to the COVID-19 pandemic.: COVID-19
+  Click all options that apply
+fields:
+  - "What is the reason you missed you original court date?": reason_for_missing
+    datatype: checkboxes
+    choices:
+      - I did not know I had a court date.: Lack of Notice
+      - Issues related to the COVID-19 pandemic.: COVID-19
+    none of the above: false
 ---
 id: default judgment date
 question: |
@@ -131,7 +134,7 @@ subquestion: |
   [${default_plaintiff_image.show(width='35em')}](${default_plaintiff_image.url_for()})
 
 fields:
- - Plaintiff mame: other_parties
+ - Plaintiff name: other_parties
    required: False
 ---
 id: docket number
@@ -283,7 +286,7 @@ code: |
  form_to_sign = pdf_concatenate(preview_doc)
 ---
 attachment:
-  docx template file: consumer_debt_default_motion.docx
+  docx template file: consumer_debt_default_motion.DOCX
   variable name: preview_doc
 ---
 id: download form
@@ -335,4 +338,4 @@ attachment:
   - name: Motion to Vacate Consumer Default
     variable name: consumer_debt_attachment
     filename: consumer_debt_default_motion
-    docx template file: consumer_debt_default_motion.docx
+    docx template file: consumer_debt_default_motion.DOCX
