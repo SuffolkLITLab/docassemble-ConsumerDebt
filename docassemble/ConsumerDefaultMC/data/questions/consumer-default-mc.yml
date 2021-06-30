@@ -286,7 +286,7 @@ code: |
  form_to_sign = pdf_concatenate(preview_doc)
 ---
 attachment:
-  docx template file: consumer_debt_default_motion.DOCX
+  docx template file: consumer_debt_default_motion.docx
   variable name: preview_doc
 ---
 id: download form
@@ -338,4 +338,4 @@ attachment:
   - name: Motion to Vacate Consumer Default
     variable name: consumer_debt_attachment
     filename: consumer_debt_default_motion
-    docx template file: consumer_debt_default_motion.DOCX
+    docx template file: consumer_debt_default_motion.docx
