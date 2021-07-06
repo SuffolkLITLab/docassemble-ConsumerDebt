@@ -25,8 +25,9 @@ code: |
     find_docket_number
   reason_for_missing
   docket_number
-  court_name
-  court_department
+  trial_court
+  #court_name
+  #court_department
   small_claims
   courts[0].name
   user_needs_interpreter
@@ -112,10 +113,6 @@ fields:
       - I did not know I had a court date.: Lack of Notice
       - Issues related to the COVID-19 pandemic.: COVID-19
     none of the above: false
-  - Other: has_other_reason
-    datatype: yesnowide
-  - Other: other_reason_for_missing
-    show if: has_other_reason
 ---
 id: default judgment date
 question: |
@@ -165,17 +162,25 @@ fields:
   #To trigger the small claims use: 1814sc000032 or 1902SC123456 or 2003sC789101
   #For the rest use: 12032831 and 1282048139
 ---
-id: Name of Trial Court
-question: |
-  What is the name of the court that the default judgment was entered in?
-fields: 
-  - Trial Court Name: court_name
+id: trial court division 
+question: | 
+  Select the **Trial Court** department and division where your case was heard.
+fields:
+  - no label: trial_court
+    datatype: object
+    choices: macourts.filter_courts(["Boston Municipal Court",
+      "District Court",
+      "Superior Court",
+      "Housing Court",
+      "Probate and Family Court",
+      "Juvenile Court",
+      "Land Court"])
 ---
-id: What Court Department
-question: |
-  What department was the default judgment was entered in?
-fields: 
-  - Deaprtment Name: court_department
+#id: What Court Department
+#question: |
+#  What department was the default judgment was entered in?
+#fields: 
+#  - Department Name: court_department
 ---
 id: Small Claims
 question: |
