@@ -53,7 +53,7 @@ setup(name='docassemble.ConsumerDefaultMC',
       url='https://docassemble.org',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.MACourts>=0.0.58'],
+      install_requires=['docassemble.MACourts>=0.0.58.2'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/ConsumerDefaultMC/', package='docassemble.ConsumerDefaultMC'),
      )

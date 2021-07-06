@@ -19,6 +19,7 @@ comment: |
 mandatory: True
 code: |
   basic_questions_intro_screen
+  user_role = "defendant"
   intro_yesno
   if intro_yesno == False:
     find_docket_number
@@ -26,14 +27,14 @@ code: |
   docket_number
   court_name
   court_department
-  #small_claims
+  small_claims
   courts[0].name
   user_needs_interpreter
   users[0].name.first
   users.there_is_another = False
   users[0].address.address
   users[0].mobile_number
-  user_ask_role = defendant
+  #user_ask_role == defendant
   other_parties
   form_to_sign
   preview_screen
@@ -110,6 +111,11 @@ fields:
     choices:
       - I did not know I had a court date.: Lack of Notice
       - Issues related to the COVID-19 pandemic.: COVID-19
+    none of the above: false
+  - Other: has_other_reason
+    datatype: yesnowide
+  - Other: other_reason_for_missing
+    show if: has_other_reason
 ---
 id: default judgment date
 question: |
@@ -170,6 +176,11 @@ question: |
   What department was the default judgment was entered in?
 fields: 
   - Deaprtment Name: court_department
+---
+id: Small Claims
+question: |
+  Was this case at the small claims court?
+yesno: small_claims
 ---
 #code: |
 #  ma_court_list_by_code = { '01': 'Boston Municipal Central', 
