@@ -38,7 +38,7 @@ code: |
   users.there_is_another = False
   users[0].address.address
   users[0].mobile_number
-  user_ask_role == defendant
+  user_ask_role = defendant
   other_parties
   preview_screen
   signature_fields = []
@@ -122,6 +122,9 @@ fields:
       - I did not know I had a court date.: Lack of Notice
       - Issues related to the COVID-19 pandemic.: COVID-19
     none of the above: false
+validation code: |
+  if reason_for_missing.all_false():
+    validation_error("You must select a reason.", field="reason_for_missing['Lack of Notice']")
 ---
 id: default judgment date
 question: |
