@@ -9,7 +9,9 @@ code: |
   })
 ---
 include:
-  - docassemble.MAVirtualCourt:basic-questions.yml
+ # - docassemble.MAVirtualCourt:basic-questions.yml
+  - docassemble.AssemblyLine:al_package.yml
+  - docassemble.MassAccess:massaccess.yml
 ---
 code: |
   download_titles = ["Motion to Vacate Default"]
@@ -18,7 +20,8 @@ comment: |
   ## Mandatory block that determines interview order
 mandatory: True
 code: |
-  basic_questions_intro_screen
+  #basic_questions_intro_screen
+  al_intro_screen
   user_role = "defendant"
   intro_yesno
   if intro_yesno == False:
@@ -29,15 +32,14 @@ code: |
   #court_name
   #court_department
   small_claims
-  courts[0].name
+  #courts[0].name
   user_needs_interpreter
   users[0].name.first
   users.there_is_another = False
   users[0].address.address
   users[0].mobile_number
-  #user_ask_role == defendant
+  user_ask_role == defendant
   other_parties
-  form_to_sign
   preview_screen
   signature_fields = []
   for user_index in range( len(users) ):
@@ -59,6 +61,13 @@ metadata:
 ---
 objects: 
   defendant: Individual
+---
+objects:
+  - al_court_bundle: ALDocumentBundle.using(elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="All forms to send to the court")
+  - al_user_bundle: ALDocumentBundle.using(elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="Form to download")
+---
+objects:
+  - consumer_debt_attachment: ALDocument.using( enabled=True, has_addendum=False, title='Consumer Default', filename='consumer-default-motion.pdf' )
 ---
 code: |
   interview_short_title = "Ask the court to 'vacate' the default judgment in your case"
@@ -168,13 +177,13 @@ question: |
 fields:
   - no label: trial_court
     datatype: object
-    choices: macourts.filter_courts(["Boston Municipal Court",
-      "District Court",
-      "Superior Court",
-      "Housing Court",
-      "Probate and Family Court",
-      "Juvenile Court",
-      "Land Court"])
+    choices: all_courts.filter_courts(allowed_courts) #(["Boston Municipal Court",
+  #    "District Court",
+  #    "Superior Court",
+  #    "Housing Court",
+  #    "Probate and Family Court",
+  #    "Juvenile Court",
+  #    "Land Court"])
 ---
 #id: What Court Department
 #question: |
@@ -302,25 +311,29 @@ code: |
   user.signature
 ---
 id: review before signature
-need: form_to_sign
 continue button field: preview_screen
 question: |
   Nearly finished
 subquestion: |
   You are almost done! Please click on the form below. It will open in a new window so you can review it and make sure it is correct.
-  
+ 
   Don't forget to come back to this page to click to the final step of signing and sending the form to the court. 
   
-   ${ form_to_sign }
-
+  ${ al_user_bundle.as_pdf( key='preview' ) }
+  
 progress: 95
 ---
-code: |
- form_to_sign = pdf_concatenate(preview_doc)
+id: review before signature
+question: |
+  Review your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.
+  
+  ${ al_user_bundle.as_pdf( key='preview' ) }
 ---
-attachment:
-  docx template file: consumer_debt_default_motion.docx
-  variable name: preview_doc
+#attachment:
+#  docx template file: consumer_debt_default_motion.docx
+#  variable name: preview_doc
 ---
 id: download form
 event: download
@@ -342,7 +355,7 @@ subquestion: |
   1. Click the preview image below to open the form in a new window.
   2. Download and save or print a copy of this form for your 
   records.
-  3. Click the "Submit to ${courts[0]}" button to send it to the court. 
+  3. Click the "Submit to ${trial_court}" button to send it to the court. 
   4. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
   % else:
   If you do not hear from the court in 1 business day, call the Trial Court’s Emergency HelpLine 833-91-COURT (833-912-6878).
@@ -352,23 +365,23 @@ subquestion: |
   Monday - Friday.
   % endif
   
-  ${ form_to_file_no_cover }  
+  ${ al_user_bundle.download_list_html( key='final' ) }
+  ${ al_user_bundle.send_button_html( key='final' ) }
   
   % if not defined('email_success') or not email_success:
-    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
+    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(trial_court.name), icon=send_icon, size="md", color="primary")}
     
   Or download/email below:
   % else:
-    Your email has already been delivered to ${courts[0]}
+    Your email has already been delivered to ${trial_court}
     
-  [:file-download: Download with cover page](${final_form_to_file.url_for()})    
+  [:file-download: Download with cover page](${al_court_bundle.url_for()})    
   % endif
 progress: 100
-attachment code: consumer_debt_attachment
 section: download
 ---
 attachment:
-  - name: Motion to Vacate Consumer Default
-    variable name: consumer_debt_attachment
-    filename: consumer_debt_default_motion
+#   name: Motion to Vacate Consumer Default
+  - variable name: consumer_debt_attachment[i]
+#    filename: consumer_debt_default_motion
     docx template file: consumer_debt_default_motion.docx
