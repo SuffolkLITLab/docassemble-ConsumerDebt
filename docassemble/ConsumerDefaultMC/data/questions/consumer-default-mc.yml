@@ -9,7 +9,7 @@ code: |
   })
 ---
 include:
- # - docassemble.MAVirtualCourt:basic-questions.yml
+  - docassemble.MAVirtualCourt:basic-questions.yml
   - docassemble.AssemblyLine:al_package.yml
   - docassemble.MassAccess:massaccess.yml
 ---
@@ -23,23 +23,25 @@ code: |
   #basic_questions_intro_screen
   al_intro_screen
   user_role = "defendant"
+  user_ask_role = defendant
   intro_yesno
   if intro_yesno == False:
     find_docket_number
-  reason_for_missing
+ 
   docket_number
   trial_court
-  #court_name
-  #court_department
   small_claims
-  #courts[0].name
-  user_needs_interpreter
+  judgment_entry_date
+  other_parties
+
   users[0].name.first
   users.there_is_another = False
+  reason_for_missing
   users[0].address.address
   users[0].mobile_number
-  user_ask_role = defendant
-  other_parties
+  
+  user_needs_interpreter
+  
   preview_screen
   signature_fields = []
   for user_index in range( len(users) ):
@@ -60,11 +62,12 @@ metadata:
     - Originally the work of Matt Brooks, this version was edited by Michael Cronin for the Suffolk LIT Lab.
 ---
 objects: 
-  defendant: Individual
+  - defendant: Individual
+  - users: ALPeopleList.using(target_number=1, ask_number=True)
 ---
 objects:
-  - al_court_bundle: ALDocumentBundle.using(elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="All forms to send to the court")
-  - al_user_bundle: ALDocumentBundle.using(elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="Form to download")
+  - al_court_bundle: ALDocumentBundle.using( elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="All forms to send to the court")
+  - al_user_bundle: ALDocumentBundle.using( elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="Form to download")
 ---
 objects:
   - consumer_debt_attachment: ALDocument.using( enabled=True, has_addendum=False, title='Consumer Default', filename='consumer-default-motion.pdf' )
@@ -334,14 +337,8 @@ subquestion: |
   
   ${ al_user_bundle.as_pdf( key='preview' ) }
 ---
-#attachment:
-#  docx template file: consumer_debt_default_motion.docx
-#  variable name: preview_doc
----
 id: download form
 event: download
-reconsider:
-  - consumer_debt_attachment
 decoration: file-download
 question: |
   % if not defined('email_success') or not email_success:
@@ -368,26 +365,13 @@ subquestion: |
   Monday - Friday.
   % endif
 
-  ${ al_user_bundle.download_list_html() }
+  ${ al_user_bundle.download_list_html( key='final' ) }
 
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
-#  ${ al_user_bundle.download_list_html( key='final' ) }
-#  ${ al_user_bundle.send_button_html( key='final' ) }
-
-#  % if not defined('email_success') or not email_success:
-#    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(trial_court.name), icon=send_icon, size="md", color="primary")}
-
-#  Or download/email below:
-#  % else:
-#    Your email has already been delivered to ${trial_court}
-
-#  [:file-download: Download with cover page](${al_court_bundle.url_for()})    
-#  % endif
+  ${ al_user_bundle.send_button_html( key='final' ) }
+  
 progress: 100
 section: download
 ---
 attachment:
-#   name: Motion to Vacate Consumer Default
   - variable name: consumer_debt_attachment[i]
-#    filename: consumer_debt_default_motion
     docx template file: consumer_debt_default_motion.docx
