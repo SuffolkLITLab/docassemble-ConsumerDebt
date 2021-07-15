@@ -10,6 +10,8 @@ code: |
 ---
 include:
   - docassemble.MAVirtualCourt:basic-questions.yml
+  - docassemble.AssemblyLine:al_package.yml
+  - docassemble.MassAccess:massaccess.yml
 ---
 code: |
   download_titles = ["Motion to Vacate Default"]
@@ -18,26 +20,28 @@ comment: |
   ## Mandatory block that determines interview order
 mandatory: True
 code: |
-  basic_questions_intro_screen
+  #basic_questions_intro_screen
+  al_intro_screen
+  user_role = "defendant"
+  user_ask_role = defendant
   intro_yesno
   if intro_yesno == False:
     find_docket_number
-  reason_for_missing
-  if reason_for_missing == 'COVID-19':
-    judgment_entry_date
+ 
   docket_number
-  court_name
-  court_department
+  trial_court
   small_claims
-  courts[0].name
-  user_needs_interpreter
+  judgment_entry_date
+  other_parties
+
   users[0].name.first
   users.there_is_another = False
+  reason_for_missing
   users[0].address.address
   users[0].mobile_number
-  user_ask_role = defendant
-  other_parties
-  form_to_sign
+  
+  user_needs_interpreter
+  
   preview_screen
   signature_fields = []
   for user_index in range( len(users) ):
@@ -58,7 +62,15 @@ metadata:
     - Originally the work of Matt Brooks, this version was edited by Michael Cronin for the Suffolk LIT Lab.
 ---
 objects: 
-  defendant: Individual
+  - defendant: Individual
+  - users: ALPeopleList.using(target_number=1, ask_number=True)
+---
+objects:
+  - al_court_bundle: ALDocumentBundle.using( elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="All forms to send to the court")
+  - al_user_bundle: ALDocumentBundle.using( elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="Form to download")
+---
+objects:
+  - consumer_debt_attachment: ALDocument.using( enabled=True, has_addendum=False, title='Consumer Default', filename='consumer-default-motion.pdf' )
 ---
 code: |
   interview_short_title = "Ask the court to 'vacate' the default judgment in your case"
@@ -113,6 +125,9 @@ fields:
       - I did not know I had a court date.: Lack of Notice
       - Issues related to the COVID-19 pandemic.: COVID-19
     none of the above: false
+validation code: |
+  if reason_for_missing.all_false():
+    validation_error("You must select a reason.", field="reason_for_missing['Lack of Notice']")
 ---
 id: default judgment date
 question: |
@@ -142,157 +157,188 @@ question: |
   What is your docket number?
 subquestion: |
   You can find the docket number at the top of the Default Judgment. 
-  
-  [${default_docket_number_image.show(width='35em')}](${default_docket_number_image.url_for()})
-  
-  It is usually close to the top of any other papers the court sent you. 
-  
-fields:
+fields: 
   - Docket number: docket_number
-  
+---
+#id: docket number
+#question: |
+#  What is your docket number?
+#subquestion: |
+#  You can find the docket number at the top of the Default Judgment. 
+#  
+#  [${default_docket_number_image.show(width='35em')}](${default_docket_number_image.url_for()})
+#
+#  It is usually close to the top of any other papers the court sent you. 
+#  
+#fields:
+#  - Docket number: docket_number
+#  
   ## The code for Docket Number is very sensitive and it needs real docket numbers to activate it.
   #To trigger the small claims use: 1814sc000032 or 1902SC123456 or 2003sC789101
   #For the rest use: 12032831 and 1282048139
 ---
-code: |
-  ma_court_list_by_code = { '01': 'Boston Municipal Central', 
-  '02':   'Roxbury Municipal', 
-  '03':   'South Boston Municipal', 
-  '04':  'Charlestown Municipal', 
-  '05':   'East Boston Municipal',
-  '06':  'West Roxbury Municipal',
-  '07':  'Dorchester Municipal',
-  '08':  'Brighton Municipal',
-  '09':  'Brookline District Court',
-  '10':  'Somerville District Court',
-  '11':  'Lowell District Court',
-  '12':  'Newton District Court',
-  '13':  'Lynn District Court',
-  '14':  'Chelsea District Court',
-  '15':  'Brockton District Court',
-  '16':  'Fitchburg District Court',
-  '17':  'Holyoke District Court',
-  '18':  'Lawrence District Court',
-  '20':  'Chicopee District Court',
-  '21':  'Marlboro District Court',
-  '22':  'Newburyport District Court',
-  '23':  'Springfield District Court',
-  '25':  'Barnstable District Court',
-  '26':  'Orleans District Court',
-  '27':  'Pittsfield District Court',
-  '28':  'Northern Berkshire District Court',
-  '29':  'Southern Berkshire District Court',
-  '31':  'Taunton District Court',
-  '32':  'Fall River District Court',
-  '33':  'New Bedford District Court',
-  '34':  'Attleboro District Court',
-  '35':  'Edgartown District Court',
-  '36':  'Salem District Court',
-  '38':  'Haverhill District Court',
-  '39':  'Gloucester District',
-  '40':  'Ipswich District Court',
-  '41':  'Greenfield District Court',
-  '42':  'Orange District Court',
-  '43':  'Palmer District Court',
-  '44':  'Westfield District Court',
-  '45':  'Northampton District Court',
-  '47':  'Concord District Court',
-  '48':  'Ayer District Court',
-  '49':  'Framingham District Court',
-  '50':  'Malden District Court',
-  '51':  'Waltham District Court',
-  '52':  'Cambridge District Court',
-  '53':  'Woburn District Court',
-  '54':  'Dedham District Court',
-  '55':  'Stoughton District Court',
-  '56':  'Quincy District Court',
-  '57':  'Wrentham District Court',
-  '58':  'Hingham District Court',
-  '59':  'Plymouth District Court',
-  '60':  'Wareham District Court',
-  '61':  'Leominster District Court',
-  '62':  'Worcester District Court',
-  '63':  'Gardner District Court',
-  '64':  'Dudley District Court',
-  '65':  'Uxbridge District Court',
-  '66':  'Milford District Court',
-  '67':  'Westborough District Court',
-  '68':  'Clinton District Court',
-  '69':  'East Brookfield District Court',
-  '70':  'Winchendon District Court',
-  '71':  'Suffolk Juvenile',
-  '72':  'Barnstable Superior Court',
-  '73':  'Bristol Superior Court',
-  '74':  'Dukes Superior Court',
-  '75':  'Nantucket Superior Court',
-  '76':  'Berkshire Superior Court',
-  '77':  'Essex Superior Court',
-  '78':  'Franklin Superior Court',
-  '79':  'Hampden Superior Court',
-  '80':  'Hampshire Superior Court',
-  '81':  'Middlesex Superior Court',
-  '82':  'Norfolk Superior Court',
-  '83':  'Plymouth Superior Court',
-  '84':  'Suffolk Superior Court',
-  '85':  'Worcester Superior Court',
-  '86':  'Peabody District Court',
-  '87':  'Natick District Court',
-  '88':  'Nantucket District Court',
-  '89':  'Falmouth District Court',
-  '98':  'Eastern Hampshire District Court'}
-  
-  try:
-    court_code = docket_number[2] + docket_number[3]
-  except:
-    court_code = '99'
-	try:
-    court_name = ma_court_list_by_code[court_code]
-  except:
-    court_name = 'Unknown Court'
-    
-  if court_code in ['01', '02', '03', '04', '05', '06', '07', '08']:
-    court_department = 'Municipal Court'
-  elif court_code in ['72', '73', '74', '75', '76', '77', '78', '79', '80',
-    '81', '82', '83', '84', '85']:
-    court_department = 'Superior Court'
-  else:
-    court_department = 'District Court'
-        
-  if docket_number[4] + docket_number[5] in ['sc', 'SC', 'Sc', 'sC']:
-    small_claims = True
-  else:
-    small_claims = False
-    
-  courts[0] = macourts.get_court_by_code( court_code )
+id: trial court division 
+question: | 
+  Select the **Trial Court** department and division where your case was heard.
+fields:
+  - no label: trial_court
+    datatype: object
+    choices: all_courts.filter_courts(allowed_courts) #(["Boston Municipal Court",
+  #    "District Court",
+  #    "Superior Court",
+  #    "Housing Court",
+  #    "Probate and Family Court",
+  #    "Juvenile Court",
+  #    "Land Court"])
+---
+#id: What Court Department
+#question: |
+#  What department was the default judgment was entered in?
+#fields: 
+#  - Department Name: court_department
+---
+id: Small Claims
+question: |
+  Was this case at the small claims court?
+yesno: small_claims
+---
+#code: |
+#  ma_court_list_by_code = { '01': 'Boston Municipal Central', 
+#  '02':   'Roxbury Municipal', 
+#  '03':   'South Boston Municipal', 
+#  '04':  'Charlestown Municipal', 
+#  '05':   'East Boston Municipal',
+#  '06':  'West Roxbury Municipal',
+#  '07':  'Dorchester Municipal',
+#  '08':  'Brighton Municipal',
+#  '09':  'Brookline District Court',
+#  '10':  'Somerville District Court',
+#  '11':  'Lowell District Court',
+#  '12':  'Newton District Court',
+#  '13':  'Lynn District Court',
+#  '14':  'Chelsea District Court',
+#  '15':  'Brockton District Court',
+#  '16':  'Fitchburg District Court',
+#  '17':  'Holyoke District Court',
+#  '18':  'Lawrence District Court',
+#  '20':  'Chicopee District Court',
+#  '21':  'Marlboro District Court',
+#  '22':  'Newburyport District Court',
+#  '23':  'Springfield District Court',
+#  '25':  'Barnstable District Court',
+#  '26':  'Orleans District Court',
+#  '27':  'Pittsfield District Court',
+#  '28':  'Northern Berkshire District Court',
+#  '29':  'Southern Berkshire District Court',
+#  '31':  'Taunton District Court',
+#  '32':  'Fall River District Court',
+#  '33':  'New Bedford District Court',
+#  '34':  'Attleboro District Court',
+#  '35':  'Edgartown District Court',
+#  '36':  'Salem District Court',
+#  '38':  'Haverhill District Court',
+#  '39':  'Gloucester District',
+#  '40':  'Ipswich District Court',
+#  '41':  'Greenfield District Court',
+#  '42':  'Orange District Court',
+#  '43':  'Palmer District Court',
+#  '44':  'Westfield District Court',
+#  '45':  'Northampton District Court',
+#  '47':  'Concord District Court',
+#  '48':  'Ayer District Court',
+#  '49':  'Framingham District Court',
+#  '50':  'Malden District Court',
+#  '51':  'Waltham District Court',
+#  '52':  'Cambridge District Court',
+#  '53':  'Woburn District Court',
+#  '54':  'Dedham District Court',
+#  '55':  'Stoughton District Court',
+#  '56':  'Quincy District Court',
+#  '57':  'Wrentham District Court',
+#  '58':  'Hingham District Court',
+#  '59':  'Plymouth District Court',
+#  '60':  'Wareham District Court',
+#  '61':  'Leominster District Court',
+#  '62':  'Worcester District Court',
+#  '63':  'Gardner District Court',
+#  '64':  'Dudley District Court',
+#  '65':  'Uxbridge District Court',
+#  '66':  'Milford District Court',
+#  '67':  'Westborough District Court',
+#  '68':  'Clinton District Court',
+#  '69':  'East Brookfield District Court',
+#  '70':  'Winchendon District Court',
+#  '71':  'Suffolk Juvenile',
+#  '72':  'Barnstable Superior Court',
+#  '73':  'Bristol Superior Court',
+#  '74':  'Dukes Superior Court',
+#  '75':  'Nantucket Superior Court',
+#  '76':  'Berkshire Superior Court',
+#  '77':  'Essex Superior Court',
+#  '78':  'Franklin Superior Court',
+#  '79':  'Hampden Superior Court',
+#  '80':  'Hampshire Superior Court',
+#  '81':  'Middlesex Superior Court',
+#  '82':  'Norfolk Superior Court',
+#  '83':  'Plymouth Superior Court',
+ # '84':  'Suffolk Superior Court',
+ # '85':  'Worcester Superior Court',
+#  '86':  'Peabody District Court',
+#  '87':  'Natick District Court',
+#  '88':  'Nantucket District Court',
+#  '89':  'Falmouth District Court',
+#  '98':  'Eastern Hampshire District Court'}
+ # 
+#  try:
+#    court_code = docket_number[2] + docket_number[3]
+#  except:
+#    court_code = '99'
+#	try:
+#    court_name = ma_court_list_by_code[court_code]
+#  except:
+#    court_name = 'Unknown Court'
+#    
+#  if court_code in ['01', '02', '03', '04', '05', '06', '07', '08']:
+#    court_department = 'Municipal Court'
+#  elif court_code in ['72', '73', '74', '75', '76', '77', '78', '79', '80',
+#    '81', '82', '83', '84', '85']:
+ #   court_department = 'Superior Court'
+#  else:
+#    court_department = 'District Court'
+#        
+#  if docket_number[4] + docket_number[5] in ['sc', 'SC', 'Sc', 'sC']:
+#    small_claims = True
+#  else:
+#    small_claims = False
+#    
+#  courts[0] = macourts.get_court_by_code( court_code )
 ---
 code: |
   user.signature
 ---
 id: review before signature
-need: form_to_sign
 continue button field: preview_screen
 question: |
   Nearly finished
 subquestion: |
   You are almost done! Please click on the form below. It will open in a new window so you can review it and make sure it is correct.
-  
+ 
   Don't forget to come back to this page to click to the final step of signing and sending the form to the court. 
   
-   ${ form_to_sign }
-
+  ${ al_user_bundle.as_pdf( key='preview' ) }
+  
 progress: 95
 ---
-code: |
- form_to_sign = pdf_concatenate(preview_doc)
----
-attachment:
-  docx template file: consumer_debt_default_motion.DOCX
-  variable name: preview_doc
+id: review before signature
+question: |
+  Review your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.
+  
+  ${ al_user_bundle.as_pdf( key='preview' ) }
 ---
 id: download form
 event: download
-reconsider:
-  - consumer_debt_attachment
 decoration: file-download
 question: |
   % if not defined('email_success') or not email_success:
@@ -303,39 +349,29 @@ question: |
 subquestion: |
   % if not defined('email_success') or not email_success:
   Thank you ${users[0]}. Your form is ready to send to the court. 
-  
+
   **It is not delivered until you complete the delivery process below.**
 
   1. Click the preview image below to open the form in a new window.
   2. Download and save or print a copy of this form for your 
   records.
-  3. Click the "Submit to ${courts[0]}" button to send it to the court. 
+  3. Click the "Submit to ${trial_court}" button to send it to the court. 
   4. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
   % else:
   If you do not hear from the court in 1 business day, call the Trial Court’s Emergency HelpLine 833-91-COURT (833-912-6878).
-  
+
   The Emergency HelpLine is open:  
   8:30am - 4:30pm,   
   Monday - Friday.
   % endif
+
+  ${ al_user_bundle.download_list_html( key='final' ) }
+
+  ${ al_user_bundle.send_button_html( key='final' ) }
   
-  ${ form_to_file_no_cover }  
-  
-  % if not defined('email_success') or not email_success:
-    ${ action_button_html( url_action('form_delivery_complete'), id_tag="submitToCourt", label="Submit to " + str(courts[0].name), icon=send_icon, size="md", color="primary")}
-    
-  Or download/email below:
-  % else:
-    Your email has already been delivered to ${courts[0]}
-    
-  [:file-download: Download with cover page](${final_form_to_file.url_for()})    
-  % endif
 progress: 100
-attachment code: consumer_debt_attachment
 section: download
 ---
 attachment:
-  - name: Motion to Vacate Consumer Default
-    variable name: consumer_debt_attachment
-    filename: consumer_debt_default_motion
-    docx template file: consumer_debt_default_motion.DOCX
+  - variable name: consumer_debt_attachment[i]
+    docx template file: consumer_debt_default_motion.docx
