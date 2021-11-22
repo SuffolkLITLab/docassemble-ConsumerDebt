@@ -13,6 +13,9 @@ include:
   - docassemble.AssemblyLine:al_package.yml
   - docassemble.MassAccess:massaccess.yml
 ---
+modules: 
+  - .docket_search
+---
 code: |
   download_titles = ["Motion to Vacate Default"]
 ---
@@ -24,11 +27,14 @@ code: |
   al_intro_screen
   user_role = "defendant"
   user_ask_role = defendant
-  intro_yesno
-  if intro_yesno == False:
+  docket_yn
+  if docket_yn == True:
+    show_court = identify_court_name(docketnumber_input)
+    show_type = identify_case_type(docketnumber_input)
+    show_year = identify_year(docketnumber_input)
+    confirm_result
+  if docket_yn == False: 
     find_docket_number
- 
-  docket_number
   trial_court
   small_claims
   judgment_entry_date
@@ -91,11 +97,17 @@ subquestion: |
   * You need another chance to {answer} the creditor's complaint. When you answer the complaint you can explain why you should not have to pay them the money they say you owe.
     
     You can only file this motion if you have your docket number.
-    
-    **Do you have a docket number?**
-    
-yesno: intro_yesno
-
+fields:
+  - To continue, you must accept our [terms of use](https://courtformsonline.org/privacy/): acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.        
+continue button field: al_intro_screen
 terms:
   answer: |
     Your Answer
@@ -107,6 +119,11 @@ terms:
     * Why you do not owe the money the plaintiff claims,
     * Why you do not owe as much money as the plaintiff claims, 
     * The laws the plaintiff broke.
+---
+id: docket yn
+question: | 
+  Do you have a docket number? 
+yesno: docket_yn
 ---
 id: kickout screen no docket number
 event: find_docket_number
@@ -158,7 +175,18 @@ question: |
 subquestion: |
   You can find the docket number at the top of the Default Judgment. 
 fields: 
-  - Docket number: docket_number
+  - Docket number: docketnumber_input
+---
+id: result 
+question: | 
+  Here is what we found about your case 
+subquestion: |
+  
+  Court: ${ show_court } [BR]
+  Case type: ${ show_type } [BR]
+  Year: ${ show_year } [BR]
+ 
+continue button field: confirm_result
 ---
 #id: docket number
 #question: |
