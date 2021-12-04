@@ -35,8 +35,9 @@ code: |
     confirm_result
   if docket_yn == False: 
     find_docket_number
-  trial_court
-  small_claims
+  if use_court_result == False: 
+    trial_court
+    small_claims
   judgment_entry_date
   other_parties
 
@@ -185,7 +186,9 @@ subquestion: |
   Court: ${ show_court } [BR]
   Case type: ${ show_type } [BR]
   Year: ${ show_year } [BR]
- 
+fields:
+  - Use this information to fill in your motion: use_court_result
+    datatype: yesnowide
 continue button field: confirm_result
 ---
 #id: docket number

@@ -53,9 +53,10 @@
 #       as the case type already tells us all the information that the case group
 #       would provide. If we can figure out the case group for each case type,
 #       this could be used to verify the input docket number. For example, the
-#       docket number 'ES00A0000XY' should raise an error, because the docket num-
-#       ber tell us that the case TYPE is 'Proxy Guardianship' ('XY') but that
-#       the case GROUP is 'Adoption' ('A') instead of 'Proxy Guardianship' ('X').
+#       docket number 'ES00A0000XY' should return that data with indication of conflict,
+#       because the docket number tell us that the case TYPE is 'Proxy Guardianship' 
+#       ('XY') but that the case GROUP is 'Adoption' ('A') instead of 'Proxy Guardianship' ('X').
+#
 #
 #   7.  Appeals Court           Example: 2020-P-0874
 #
@@ -435,7 +436,7 @@ def identify_court_name(docket_number):
         if court_code in court_name_code_dict:
             return court_name_code_dict[court_code]
         else:
-            raise Exception
+            return None
             # The docket number has incorrect (nonexistent) court code.
 
 def identify_case_type(docket_number):
@@ -444,7 +445,10 @@ def identify_case_type(docket_number):
     except:
       case_type_code = None
     court_name = identify_court_name(docket_number)
+
     if not case_type_code:
+        if court_name is None: 
+          return None
         if 'Appeals' in court_name or 'Supreme' in court_name:
             return 'Appellate'
             # Without the docket number for the case in the lower court, we
@@ -455,6 +459,8 @@ def identify_case_type(docket_number):
         # The docket number is missing case-type code. See above comment in
         # identify_court_name function re check_proper_format and variations.
     else:
+        if court_name is None: 
+          return None
         if 'Probate' in court_name:
             for key in probate_family_court_case_type_code_dict:
                 if key == case_type_code:
@@ -467,7 +473,7 @@ def identify_case_type(docket_number):
                 if key == case_type_code:
                     return court_case_type_code_dict[key]
             else:
-                raise Exception
+                return None
                 # The docket number has incorrect (nonexistent) case-type code.
 
 def identify_year(docket_number):
@@ -481,7 +487,7 @@ def identify_year(docket_number):
         # variations, include the year.
     else:
         if case_year[-2:] > time.strftime('%y'):
-            raise Exception
+            return None
             # The docket number has incorrect year: it refers to a case that has
             # not yet been filed, i.e., a case that does not exist.
         else:
