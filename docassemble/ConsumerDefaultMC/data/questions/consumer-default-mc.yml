@@ -5,7 +5,7 @@ code: |
   if not defined("interview_metadata['consumer_debt_default_motion']"):
     interview_metadata.initializeObject('consumer_debt_default_motion')
   interview_metadata['consumer_debt_default_motion'].update({
-    'attachment block variable': 'consumer_debt_attachment',
+    'attachment block variable': ['consumer_debt_attachment','next_step_instructions_consumer_debt'],
   })
 ---
 include:
@@ -35,9 +35,13 @@ code: |
     confirm_result
   if docket_yn == False: 
     find_docket_number
+  if use_court_result == True: 
+    if show_type == 'Small Claims': 
+      small_claims = True
   if use_court_result == False: 
     trial_court
     small_claims
+
   judgment_entry_date
   other_parties
 
@@ -66,7 +70,7 @@ metadata:
     An interview to create a document to ask the Court for a new hearing date
     if you didn't know about your first hearing date.
   authors: |
-    - Originally the work of Matt Brooks, this version was edited by Michael Cronin for the Suffolk LIT Lab.
+    - Originally the work of Matt Brooks, this version was edited by Michael Cronin, Mia Bonardi, and Aubrie Souza for the Suffolk LIT Lab.
 ---
 objects: 
   - defendant: Individual
@@ -74,10 +78,11 @@ objects:
 ---
 objects:
   - al_court_bundle: ALDocumentBundle.using( elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="All forms to send to the court")
-  - al_user_bundle: ALDocumentBundle.using( elements=[consumer_debt_attachment], filename="consumer-default-motion.pdf", title="Form to download")
+  - al_user_bundle: ALDocumentBundle.using( elements=[consumer_debt_attachment, instructions_consumer_debt], filename="consumer-default-motion.pdf", title="Form and Instructions to download")
 ---
 objects:
   - consumer_debt_attachment: ALDocument.using( enabled=True, has_addendum=False, title='Consumer Default', filename='consumer-default-motion.pdf' )
+  - instructions_consumer_debt: ALDocument.using( enabled=True, has_addendum=False, title='Next Step Instruction', filename='consumer-default-motion.pdf' )
 ---
 code: |
   interview_short_title = "Ask the court to 'vacate' the default judgment in your case"
@@ -124,20 +129,29 @@ terms:
 id: docket yn
 question: | 
   Do you have a docket number? 
+subquestion: |
+  You can find the docket number at the top of the Default Judgment. 
+  
+  [${default_docket_number_image.show(width='35em')}](${default_docket_number_image.url_for()})
+
+  It is usually close to the top of any other papers the court sent you. 
 yesno: docket_yn
 ---
 id: kickout screen no docket number
+decoration: hand-paper
 event: find_docket_number
 question: |
   You need a docket number to file this motion.
 subquestion: |
-  **If you do not have a docket number or you cannot find one,** you can call Greater Boston Legal Services Consumer Intake Line: 617-603-1671. Leave a message and someone will call you back with help.
+  **If you do not have a docket number or you cannot find one,** you can call Greater Boston Legal Services Consumer Intake Line: 617-603-1671.
+  
+  Leave a message and someone will call you back with help.
 ---
 id: reason for missing
 question: |
-  Click all options that apply
+  What is the reason you missed you original court date?
 fields:
-  - "What is the reason you missed you original court date?": reason_for_missing
+  - "Check all options that apply": reason_for_missing
     datatype: checkboxes
     choices:
       - I did not know I had a court date.: Lack of Notice
@@ -175,6 +189,10 @@ question: |
   What is your docket number?
 subquestion: |
   You can find the docket number at the top of the Default Judgment. 
+ 
+  [${default_docket_number_image.show(width='35em')}](${default_docket_number_image.url_for()})
+
+  It is usually close to the top of any other papers the court sent you. 
 fields: 
   - Docket number: docketnumber_input
 ---
@@ -356,7 +374,7 @@ subquestion: |
  
   Don't forget to come back to this page to click to the final step of signing and sending the form to the court. 
   
-  ${ al_user_bundle.as_pdf( key='preview' ) }
+  ${ consumer_debt_attachment.as_pdf( key='preview' ) }
   
 progress: 95
 ---
@@ -366,7 +384,7 @@ question: |
 subquestion: |
   Here is a preview of the form you will sign on the next page.
   
-  ${ al_user_bundle.as_pdf( key='preview' ) }
+  ${ consumer_debt_attachment.as_pdf( key='preview' ) }
 ---
 id: download form
 event: download
@@ -379,15 +397,15 @@ question: |
   % endif
 subquestion: |
   % if not defined('email_success') or not email_success:
-  Thank you ${users[0]}. Your form is ready to send to the court. 
+  Thank you ${users[0]}. Your form is ready to deliver to the court. 
 
-  **It is not delivered until you complete the delivery process below.**
+  **Use the instructions to complete the delivery process.**
 
   1. Click the preview image below to open the form in a new window.
   2. Download and save or print a copy of this form for your 
   records.
-  3. Click the "Submit to ${trial_court}" button to send it to the court. 
-  4. You will have a chance to add instructions to the clerk and see the cover page before final delivery.
+  3. Download and save or print a copy of this form for your 
+  records.
   % else:
   If you do not hear from the court in 1 business day, call the Trial Court’s Emergency HelpLine 833-91-COURT (833-912-6878).
 
@@ -406,3 +424,7 @@ section: download
 attachment:
   - variable name: consumer_debt_attachment[i]
     docx template file: consumer_debt_default_motion.docx
+---
+attachment: 
+  - variable name: instructions_consumer_debt[i]
+    docx template file: next_steps_motion_to_vacate_consumer_debt.docx
