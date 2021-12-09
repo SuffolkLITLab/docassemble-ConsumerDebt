@@ -53,7 +53,7 @@ setup(name='docassemble.ConsumerDefaultMC',
       url='https://docassemble.org',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.ALMassachusetts>=0.0.7', 'docassemble.ALToolbox>=0.3.6', 'docassemble.AssemblyLine>=2.6.2', 'docassemble.MACourts>=0.0.58.2', 'docassemble.MassAccess>=0.0.3.1'],
+      install_requires=['docassemble.ALMassachusetts>=0.0.7', 'docassemble.ALToolbox>=0.3.6', 'docassemble.AssemblyLine>=2.7.1', 'docassemble.MACourts>=0.0.58.2', 'docassemble.MassAccess>=0.2.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/ConsumerDefaultMC/', package='docassemble.ConsumerDefaultMC'),
      )

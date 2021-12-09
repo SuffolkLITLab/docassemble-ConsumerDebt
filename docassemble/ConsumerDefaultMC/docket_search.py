@@ -459,12 +459,11 @@ def identify_case_type(docket_number):
         # The docket number is missing case-type code. See above comment in
         # identify_court_name function re check_proper_format and variations.
     else:
-        if court_name is None: 
-          return None
-        if 'Probate' in court_name:
-            for key in probate_family_court_case_type_code_dict:
-                if key == case_type_code:
-                    return probate_family_court_case_type_code_dict[key]
+        if not court_name is None: 
+          if 'Probate' in court_name:
+              for key in probate_family_court_case_type_code_dict:
+                  if key == case_type_code:
+                      return probate_family_court_case_type_code_dict[key]
         # Case-type identification separates Probate and Family Court from other
         # courts because 'AD' refers to 'Adoption' in Probate and Family Court
         # while it refers to 'Appeal' in others.

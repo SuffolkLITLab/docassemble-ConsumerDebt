@@ -29,19 +29,30 @@ code: |
   user_ask_role = defendant
   docket_yn
   if docket_yn == True:
-    show_court = identify_court_name(docketnumber_input)
-    show_type = identify_case_type(docketnumber_input)
-    show_year = identify_year(docketnumber_input)
-    confirm_result
+    docketnumber_input
   if docket_yn == False: 
     find_docket_number
-  if use_court_result == True: 
-    if show_type == 'Small Claims': 
-      small_claims = True
-  if use_court_result == False: 
-    trial_court
-    small_claims
-
+  show_court = identify_court_name(docketnumber_input)
+  show_type = identify_case_type(docketnumber_input)
+  show_year = identify_year(docketnumber_input)
+  if show_court is None: 
+    if no_result == "try_docket_again":
+      undefine('docketnumber_input')
+      undefine('no_result')
+      docketnumber_input
+    else: 
+      trial_court
+      small_claims
+  else: 
+    confirm_result
+    if use_court_result == True: 
+      if show_type == 'Small Claims': 
+        small_claims = True
+      if show_type == None: 
+        small_claims
+    if use_court_result == False: 
+      trial_court
+      small_claims
   judgment_entry_date
   other_parties
 
@@ -141,7 +152,7 @@ id: kickout screen no docket number
 decoration: hand-paper
 event: find_docket_number
 question: |
-  You need a docket number to file this motion.
+  You need a docket number to file this motion
 subquestion: |
   **If you do not have a docket number or you cannot find one,** you can call Greater Boston Legal Services Consumer Intake Line: 617-603-1671.
   
@@ -149,9 +160,9 @@ subquestion: |
 ---
 id: reason for missing
 question: |
-  What is the reason you missed you original court date?
+  Why did you missed your original court date?
 fields:
-  - "Check all options that apply": reason_for_missing
+  - "Check all that apply": reason_for_missing
     datatype: checkboxes
     choices:
       - I did not know I had a court date.: Lack of Notice
@@ -209,6 +220,15 @@ fields:
     datatype: yesnowide
 continue button field: confirm_result
 ---
+id: no result
+question: | 
+  We did not find a result for your docket number. How do you want to proceed? 
+  ${docketnumber_input}
+field: no_result
+buttons: 
+  - Try Again: try_docket_again
+  - Continue Manually: continue_manually
+---
 #id: docket number
 #question: |
 #  What is your docket number?
@@ -232,13 +252,12 @@ question: |
 fields:
   - no label: trial_court
     datatype: object
-    choices: all_courts.filter_courts(allowed_courts) #(["Boston Municipal Court",
-  #    "District Court",
-  #    "Superior Court",
-  #    "Housing Court",
-  #    "Probate and Family Court",
-  #    "Juvenile Court",
-  #    "Land Court"])
+    choices: all_courts.filter_courts(["Boston Municipal Court",
+      "District Court",
+      "Superior Court",
+      "Housing Court",
+      "Probate and Family Court",
+      "Land Court"])
 ---
 #id: What Court Department
 #question: |
@@ -403,8 +422,6 @@ subquestion: |
 
   1. Click the preview image below to open the form in a new window.
   2. Download and save or print a copy of this form for your 
-  records.
-  3. Download and save or print a copy of this form for your 
   records.
   % else:
   If you do not hear from the court in 1 business day, call the Trial Court’s Emergency HelpLine 833-91-COURT (833-912-6878).
