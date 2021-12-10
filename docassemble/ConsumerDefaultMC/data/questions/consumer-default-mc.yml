@@ -223,7 +223,8 @@ continue button field: confirm_result
 id: no result
 question: | 
   We did not find a result for your docket number. How do you want to proceed? 
-  ${docketnumber_input}
+subquestion: | 
+  The docket number you provided is: ${docketnumber_input}
 field: no_result
 buttons: 
   - Try Again: try_docket_again
