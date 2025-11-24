@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -51,8 +51,7 @@ setup(name='docassemble.ConsumerDebt',
       author_email='qsteenhuis@suffolk.edu',
       license='MIT',
       url='https://docassemble.org',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
+      packages=find_namespace_packages(),
       install_requires=['docassemble.ALMassachusetts>=0.0.7', 'docassemble.ALToolbox>=0.0.11', 'docassemble.AssemblyLine>=2.1.4', 'docassemble.MACourts>=0.0.58.2', 'docassemble.MassAccess>=0.0.3.1'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/ConsumerDebt/', package='docassemble.ConsumerDebt'),
